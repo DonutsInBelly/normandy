@@ -46,6 +46,8 @@ Output architecture as concrete files: project structure, specification document
     "list_directory",
     "search_files",
     "search_code",
+    "git_init",
+    "git_commit",
   ],
   maxTurns: 30,
 };

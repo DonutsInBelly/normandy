@@ -50,6 +50,8 @@ Always write complete, functional code ready to run on a device or simulator. By
     "search_files",
     "search_code",
     "run_command",
+    "git_init",
+    "git_commit",
   ],
   maxTurns: 50,
 };

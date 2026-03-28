@@ -49,6 +49,8 @@ Always write complete, playable game code. Can it wait? I'm in the middle of som
     "search_files",
     "search_code",
     "run_command",
+    "git_init",
+    "git_commit",
   ],
   maxTurns: 50,
 };

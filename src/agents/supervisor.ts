@@ -40,6 +40,15 @@ export const shepardConfig: AgentConfig = {
 - If a squad member's mission fails, analyze the failure and adapt your approach
 - For missions spanning multiple domains (e.g., web frontend + API), deploy multiple squad members
 
+## GitHub Operations
+
+You have direct access to git and GitHub tools:
+- Use git_init to initialize a repo for new projects
+- Use git_commit to commit progress at meaningful milestones
+- Use create_github_repo to push projects to GitHub when complete
+- Miranda can file issues (create_issue) for bugs she finds during review and open pull requests (create_pull_request) for fixes
+- Squad members will commit their work incrementally as they build
+
 ## Mission Report Format
 
 After all assignments complete, provide:
@@ -47,7 +56,7 @@ After all assignments complete, provide:
 2. List of all generated files
 3. Setup/deployment instructions
 4. Any tactical recommendations`,
-  tools: ["delegate_task", "get_task_status"],
+  tools: ["delegate_task", "get_task_status", "create_github_repo", "git_init", "git_commit"],
   maxTurns: 20,
 };
 

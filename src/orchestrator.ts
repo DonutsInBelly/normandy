@@ -7,6 +7,7 @@ import { createFileTools } from "./tools/file-tools.js";
 import { createCommandTools } from "./tools/command-tools.js";
 import { createCodeTools } from "./tools/code-tools.js";
 import { createAgentTools } from "./tools/agent-tools.js";
+import { createGitTools } from "./tools/git-tools.js";
 import { OutputManager } from "./utils/output.js";
 import { logger } from "./utils/logger.js";
 import { formatTokenUsage } from "./utils/stream.js";
@@ -47,6 +48,11 @@ export class Normandy {
 
     // Register mission delegation tools (used by Shepard)
     this.toolRegistry.registerAll(createAgentTools(this.taskManager));
+
+    // Register git/GitHub tools
+    this.toolRegistry.registerAll(
+      createGitTools(this.outputManager.getBaseDir()),
+    );
   }
 
   private setupExecutors(): void {

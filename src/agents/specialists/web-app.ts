@@ -47,6 +47,8 @@ Always write complete, working code -- Keelah, never leave placeholder comments 
     "search_files",
     "search_code",
     "run_command",
+    "git_init",
+    "git_commit",
   ],
   maxTurns: 50,
 };

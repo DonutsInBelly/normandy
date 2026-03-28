@@ -35,7 +35,7 @@ When reviewing:
 6. Summarize with an overall assessment and prioritized action items
 
 Be thorough but pragmatic -- focus on issues that matter for production quality. I don't make mistakes.`,
-  tools: ["read_file", "list_directory", "search_files", "search_code"],
+  tools: ["read_file", "list_directory", "search_files", "search_code", "create_issue", "create_pull_request"],
   maxTurns: 30,
 };
 
