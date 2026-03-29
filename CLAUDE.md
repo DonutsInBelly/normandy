@@ -25,6 +25,7 @@ An AI-powered code generation CLI built in TypeScript using the Claude API (`@an
 - `src/core/task-manager.ts` — Mission lifecycle, connects Shepard's delegation to specialist execution
 - `src/tools/` — Tool system (file ops, shell commands, code search, agent delegation, git/GitHub)
 - `src/tools/git-tools.ts` — Git and GitHub tools (git_init, git_commit, create_github_repo, create_pull_request, create_issue, list_issues)
+- `src/tools/web-tools.ts` — Web search (Brave Search API) and web_fetch (URL to text extraction)
 - `src/orchestrator.ts` — `Normandy` class: wires agents, tools, and task manager together
 - `src/index.ts` — CLI entry point with interactive CIC (REPL) and one-shot modes
 
@@ -54,3 +55,4 @@ npm link             # install `normandy` command globally
 - Specialists are added by: creating a file in `src/agents/specialists/`, adding config, and registering in `src/agents/index.ts`
 - Git/GitHub tools: Shepard gets repo creation, all builders get git_init/git_commit, Miranda gets create_issue/create_pull_request
 - GitHub CLI (`gh`) must be authenticated for GitHub tools to work
+- Web tools: all agents get web_search + web_fetch. Requires BRAVE_SEARCH_API_KEY env var (free at https://brave.com/search/api/)

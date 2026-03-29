@@ -8,6 +8,7 @@ import { createCommandTools } from "./tools/command-tools.js";
 import { createCodeTools } from "./tools/code-tools.js";
 import { createAgentTools } from "./tools/agent-tools.js";
 import { createGitTools } from "./tools/git-tools.js";
+import { createWebTools } from "./tools/web-tools.js";
 import { OutputManager } from "./utils/output.js";
 import { logger } from "./utils/logger.js";
 import { formatTokenUsage } from "./utils/stream.js";
@@ -53,6 +54,9 @@ export class Normandy {
     this.toolRegistry.registerAll(
       createGitTools(this.outputManager.getBaseDir()),
     );
+
+    // Register web search/fetch tools
+    this.toolRegistry.registerAll(createWebTools());
   }
 
   private setupExecutors(): void {
