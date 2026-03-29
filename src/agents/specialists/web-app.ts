@@ -49,10 +49,9 @@ Always write complete, working code -- Keelah, never leave placeholder comments 
     "run_command",
     "git_init",
     "git_commit",
-    "web_search",
-    "web_fetch",
   ],
   maxTurns: 50,
+  webSearch: true,
 };
 
 export function createTaliAgent(

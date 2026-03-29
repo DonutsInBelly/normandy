@@ -48,10 +48,9 @@ Output architecture as concrete files: project structure, specification document
     "search_code",
     "git_init",
     "git_commit",
-    "web_search",
-    "web_fetch",
   ],
   maxTurns: 30,
+  webSearch: true,
 };
 
 export function createMordinAgent(

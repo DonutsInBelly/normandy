@@ -51,10 +51,9 @@ Always write complete, playable game code. Can it wait? I'm in the middle of som
     "run_command",
     "git_init",
     "git_commit",
-    "web_search",
-    "web_fetch",
   ],
   maxTurns: 50,
+  webSearch: true,
 };
 
 export function createGarrusAgent(

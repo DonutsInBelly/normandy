@@ -9,6 +9,7 @@ export interface AgentConfig {
   tools: string[];
   maxTurns: number;
   thinking?: { type: "enabled"; budgetTokens: number } | { type: "disabled" };
+  webSearch?: boolean;
 }
 
 export interface Task {

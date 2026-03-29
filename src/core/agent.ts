@@ -72,7 +72,18 @@ export abstract class BaseAgent {
   }
 
   protected async executeLoop(): Promise<Anthropic.Message> {
-    const tools = this.toolRegistry.getDefinitions(this.config.tools);
+    const clientTools: Anthropic.Messages.ToolUnion[] =
+      this.toolRegistry.getDefinitions(this.config.tools);
+
+    // Add server-side web search if enabled
+    if (this.config.webSearch) {
+      clientTools.push({
+        type: "web_search_20250305",
+        name: "web_search",
+        max_uses: 10,
+      });
+    }
+
     let turns = 0;
 
     while (true) {
@@ -93,7 +104,7 @@ export abstract class BaseAgent {
           max_tokens: 16384,
           system: this.config.systemPrompt,
           messages: this.conversation.getMessages(),
-          tools: tools.length > 0 ? tools : undefined,
+          tools: clientTools.length > 0 ? clientTools : undefined,
         });
 
         stream.on("text", (text) => {

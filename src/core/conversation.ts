@@ -17,26 +17,12 @@ export class ConversationManager {
   }
 
   addAssistantMessage(content: Anthropic.ContentBlock[]): void {
+    // Preserve all content blocks as-is for multi-turn conversations.
+    // Server tool blocks (server_tool_use, web_search_tool_result) must be
+    // passed back unchanged for citations and context to work.
     this.messages.push({
       role: "assistant",
-      content: content.map((block) => {
-        if (block.type === "text") {
-          return { type: "text" as const, text: block.text };
-        }
-        if (block.type === "tool_use") {
-          return {
-            type: "tool_use" as const,
-            id: block.id,
-            name: block.name,
-            input: block.input as Record<string, unknown>,
-          };
-        }
-        // For thinking blocks and other types, convert to text
-        return {
-          type: "text" as const,
-          text: `[${block.type}]`,
-        };
-      }),
+      content: content as unknown as Anthropic.ContentBlockParam[],
     });
   }
 
