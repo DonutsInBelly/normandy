@@ -45,14 +45,20 @@ export function createMemoryTools(memoryManager: MemoryManager): ToolHandler[] {
           agentId: {
             type: "string",
             description:
-              "The squad member whose log to read (tali, garrus, liara, miranda, mordin, shepard)",
+              "The squad member whose log to read",
             enum: [
+              "shepard",
               "tali",
               "garrus",
               "liara",
-              "miranda",
+              "legion",
+              "kasumi",
+              "samara",
               "mordin",
-              "shepard",
+              "miranda",
+              "thane",
+              "edi",
+              "javik",
             ],
           },
         },

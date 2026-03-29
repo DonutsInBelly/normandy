@@ -1,16 +1,17 @@
 import { AgentRegistry } from "./registry.js";
 import { shepardConfig, createShepardAgent } from "./supervisor.js";
 import {
-  taliConfig,
-  createTaliAgent,
-  garrusConfig,
-  createGarrusAgent,
-  liaraConfig,
-  createLiaraAgent,
-  mirandaConfig,
-  createMirandaAgent,
-  mordinConfig,
-  createMordinAgent,
+  taliConfig, createTaliAgent,
+  garrusConfig, createGarrusAgent,
+  liaraConfig, createLiaraAgent,
+  mirandaConfig, createMirandaAgent,
+  mordinConfig, createMordinAgent,
+  kasumiConfig, createKasumiAgent,
+  samaraConfig, createSamaraAgent,
+  ediConfig, createEDIAgent,
+  thaneConfig, createThaneAgent,
+  legionConfig, createLegionAgent,
+  javikConfig, createJavikAgent,
 } from "./specialists/index.js";
 
 export function createDefaultRegistry(): AgentRegistry {
@@ -22,6 +23,12 @@ export function createDefaultRegistry(): AgentRegistry {
   registry.register(liaraConfig, createLiaraAgent);
   registry.register(mirandaConfig, createMirandaAgent);
   registry.register(mordinConfig, createMordinAgent);
+  registry.register(kasumiConfig, createKasumiAgent);
+  registry.register(samaraConfig, createSamaraAgent);
+  registry.register(ediConfig, createEDIAgent);
+  registry.register(thaneConfig, createThaneAgent);
+  registry.register(legionConfig, createLegionAgent);
+  registry.register(javikConfig, createJavikAgent);
 
   return registry;
 }

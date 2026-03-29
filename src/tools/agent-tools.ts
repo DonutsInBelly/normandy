@@ -6,11 +6,25 @@ export function createAgentTools(taskManager: TaskManager): ToolHandler[] {
     definition: {
       name: "delegate_task",
       description: `Assign a mission to a Normandy squad member. Available crew:
-- "tali": Tali'Zorah -- Chief Engineer. Builds web applications (React, Next.js, Vue, Angular, HTML/CSS/JS)
-- "garrus": Garrus Vakarian -- Calibration Expert. Builds video games (Phaser, Unity scripts, Godot, browser games)
-- "liara": Liara T'Soni -- Information Specialist. Builds mobile applications (React Native, Flutter, Swift, Kotlin)
-- "miranda": Miranda Lawson -- Perfectionist Operative. Reviews code for quality, security, and best practices
-- "mordin": Mordin Solus -- Scientist. Designs system architecture, project structure, and technical specs
+
+Builders:
+- "tali": Tali'Zorah -- Chief Engineer. Web applications (React, Next.js, Vue, Angular)
+- "garrus": Garrus Vakarian -- Calibration Expert. Video games (Phaser, Unity, Godot)
+- "liara": Liara T'Soni -- Information Specialist. Mobile apps (React Native, Flutter, Swift)
+- "legion": Legion -- Data Specialist. Databases, APIs, backend services
+
+Designers:
+- "kasumi": Kasumi Goto -- UX/Product Designer. User flows, wireframes, design systems
+- "samara": Samara -- Game Designer. Mechanics, balancing, progression, game feel
+
+Quality & Architecture:
+- "mordin": Mordin Solus -- Scientist. System architecture and technical specs
+- "miranda": Miranda Lawson -- Perfectionist. Code review, security, quality
+- "thane": Thane Krios -- Testing. Unit, integration, and e2e tests
+
+Operations:
+- "edi": EDI -- DevOps. CI/CD, Docker, deployment, infrastructure
+- "javik": Javik -- Documentation. READMEs, API docs, guides
 
 The squad member will execute the mission and return a report with generated files and a summary.`,
       input_schema: {
@@ -19,8 +33,8 @@ The squad member will execute the mission and return a report with generated fil
           specialistId: {
             type: "string",
             description:
-              "The squad member to assign (tali, garrus, liara, miranda, mordin)",
-            enum: ["tali", "garrus", "liara", "miranda", "mordin"],
+              "The squad member to assign",
+            enum: ["tali", "garrus", "liara", "legion", "kasumi", "samara", "mordin", "miranda", "thane", "edi", "javik"],
           },
           description: {
             type: "string",

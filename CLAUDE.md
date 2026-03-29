@@ -16,8 +16,14 @@ An AI-powered code generation CLI built in TypeScript using the Claude API (`@an
 | Tali'Zorah | `tali` | `src/agents/specialists/web-app.ts` | opus-4-6 | Web apps (React, Next.js, Vue) |
 | Garrus Vakarian | `garrus` | `src/agents/specialists/video-game.ts` | opus-4-6 | Games (Phaser, Unity, Godot) |
 | Liara T'Soni | `liara` | `src/agents/specialists/mobile-app.ts` | opus-4-6 | Mobile (React Native, Flutter, Swift) |
-| Miranda Lawson | `miranda` | `src/agents/specialists/code-review.ts` | sonnet-4-6 | Code review & QA |
+| Legion | `legion` | `src/agents/specialists/backend.ts` | opus-4-6 | Backend, databases, APIs |
+| Kasumi Goto | `kasumi` | `src/agents/specialists/ux-design.ts` | opus-4-6 | UX/product design |
+| Samara | `samara` | `src/agents/specialists/game-design.ts` | opus-4-6 | Game design, mechanics, balancing |
 | Mordin Solus | `mordin` | `src/agents/specialists/architect.ts` | opus-4-6 | Architecture & design |
+| Miranda Lawson | `miranda` | `src/agents/specialists/code-review.ts` | sonnet-4-6 | Code review & QA |
+| Thane Krios | `thane` | `src/agents/specialists/testing.ts` | opus-4-6 | Testing (unit, integration, e2e) |
+| EDI | `edi` | `src/agents/specialists/devops.ts` | opus-4-6 | DevOps, CI/CD, deployment |
+| Javik | `javik` | `src/agents/specialists/documentation.ts` | sonnet-4-6 | Documentation & guides |
 
 ### Key modules
 
