@@ -33,6 +33,7 @@ An AI-powered code generation CLI built in TypeScript using the Claude API (`@an
 - `src/tools/git-tools.ts` — Git and GitHub tools (git_init, git_commit, create_github_repo, create_pull_request, create_issue, list_issues)
 - `src/tools/memory-tools.ts` — Agent memory tools (save_memory, read_memory)
 - `src/core/memory.ts` — MemoryManager: reads/writes .normandy/{agentId}.md files per project
+- `src/core/mcp.ts` — McpManager: connects to MCP servers via stdio, discovers tools, bridges to ToolRegistry
 - `src/orchestrator.ts` — `Normandy` class: wires agents, tools, and task manager together
 - `src/index.ts` — CLI entry point with interactive CIC (REPL) and one-shot modes
 
@@ -64,3 +65,5 @@ npm link             # install `normandy` command globally
 - GitHub CLI (`gh`) must be authenticated for GitHub tools to work
 - Web search: agents with `webSearch: true` in config get Claude's built-in server-side web search (no extra API key needed)
 - Agent memory: agents save/load mission logs to `.normandy/{agentId}.md` in the project dir. Loaded into system prompt on task start, saved via save_memory tool. Agents can also read each other's logs via read_memory.
+- Agent safeguards: stuck detection (3 identical tool calls in a row aborts), optional token budget (`maxTokens` in AgentConfig), optional wall-clock timeout (`timeoutMs` in AgentConfig), and Shepard can pass `maxTurns` override per delegation via `delegate_task`.
+- MCP support: agents can use tools from MCP servers. Configure in `.normandy/mcp.json` in the project dir. The `McpManager` (`src/core/mcp.ts`) connects via stdio, discovers tools, and bridges them into Normandy's `ToolRegistry`. Tools are namespaced as `mcp__{serverName}__{toolName}`. Use `agentIds` in config to restrict tools to specific agents.

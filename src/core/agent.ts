@@ -4,7 +4,7 @@ import { ConversationManager } from "./conversation.js";
 import { MemoryManager } from "./memory.js";
 import { ToolRegistry } from "../tools/registry.js";
 import { getClient } from "./client.js";
-import { withRetry, MaxTurnsExceededError } from "./errors.js";
+import { withRetry, MaxTurnsExceededError, AgentError } from "./errors.js";
 import { createAgentLogger } from "../utils/logger.js";
 import { createProgressIndicator, formatTokenUsage } from "../utils/stream.js";
 
@@ -106,10 +106,38 @@ export abstract class BaseAgent {
 
     const systemPrompt = await this.buildSystemPrompt();
     let turns = 0;
+    const startTime = Date.now();
+
+    // Stuck detection: track recent tool call signatures
+    const recentToolCalls: string[] = [];
+    const STUCK_THRESHOLD = 3; // identical calls in a row = stuck
 
     while (true) {
       if (turns >= this.config.maxTurns) {
         throw new MaxTurnsExceededError(this.config.id, this.config.maxTurns);
+      }
+
+      // Check token budget
+      if (this.config.maxTokens) {
+        const usage = this.conversation.getTotalUsage();
+        const totalTokens = usage.inputTokens + usage.outputTokens;
+        if (totalTokens >= this.config.maxTokens) {
+          throw new AgentError(
+            `Token budget exceeded: ${totalTokens} >= ${this.config.maxTokens}`,
+            this.config.id,
+          );
+        }
+      }
+
+      // Check wall-clock timeout
+      if (this.config.timeoutMs) {
+        const elapsed = Date.now() - startTime;
+        if (elapsed >= this.config.timeoutMs) {
+          throw new AgentError(
+            `Timeout after ${Math.round(elapsed / 1000)}s (limit: ${Math.round(this.config.timeoutMs / 1000)}s)`,
+            this.config.id,
+          );
+        }
       }
 
       turns++;
@@ -154,6 +182,32 @@ export abstract class BaseAgent {
       if (toolUseBlocks.length === 0) {
         progress.done("complete (no tool calls)");
         return message;
+      }
+
+      // Stuck detection: build a signature of this turn's tool calls
+      const turnSignature = toolUseBlocks
+        .map((b) => `${b.name}:${JSON.stringify(b.input)}`)
+        .join("|");
+      recentToolCalls.push(turnSignature);
+
+      // Keep only last N entries
+      if (recentToolCalls.length > STUCK_THRESHOLD) {
+        recentToolCalls.shift();
+      }
+
+      // Check if the last N calls are all identical
+      if (
+        recentToolCalls.length >= STUCK_THRESHOLD &&
+        recentToolCalls.every((sig) => sig === recentToolCalls[0])
+      ) {
+        this.logger.warn(
+          { signature: turnSignature, count: STUCK_THRESHOLD },
+          "Agent stuck: repeated identical tool calls",
+        );
+        throw new AgentError(
+          `Agent stuck: made ${STUCK_THRESHOLD} identical tool calls in a row (${toolUseBlocks.map((b) => b.name).join(", ")})`,
+          this.config.id,
+        );
       }
 
       // Execute tools

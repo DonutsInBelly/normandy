@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import { Task, TaskResult } from "./types.js";
 import { logger } from "../utils/logger.js";
 
-export type AgentExecutor = (task: Task) => Promise<TaskResult>;
+export type AgentExecutor = (task: Task, maxTurnsOverride?: number) => Promise<TaskResult>;
 
 export class TaskManager {
   private tasks = new Map<string, Task>();
@@ -17,6 +17,7 @@ export class TaskManager {
     description: string,
     context: string,
     parentId?: string,
+    maxTurnsOverride?: number,
   ): Promise<string> {
     const executor = this.executors.get(agentId);
     if (!executor) {
@@ -46,7 +47,7 @@ export class TaskManager {
     task.updatedAt = new Date();
 
     try {
-      const result = await executor(task);
+      const result = await executor(task, maxTurnsOverride);
       task.status = result.success ? "completed" : "failed";
       task.result = result;
       task.updatedAt = new Date();

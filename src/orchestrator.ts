@@ -2,6 +2,7 @@ import { OrchestratorConfig, Task, GeneratedFile } from "./core/types.js";
 import { TaskManager } from "./core/task-manager.js";
 import { BaseAgent } from "./core/agent.js";
 import { MemoryManager } from "./core/memory.js";
+import { McpManager } from "./core/mcp.js";
 import { ToolRegistry } from "./tools/registry.js";
 import { createDefaultRegistry } from "./agents/index.js";
 import { createFileTools } from "./tools/file-tools.js";
@@ -22,6 +23,7 @@ export class Normandy {
   private toolRegistry: ToolRegistry;
   private outputManager: OutputManager;
   private memoryManager: MemoryManager;
+  private mcpManager: McpManager;
   private shepard: BaseAgent | null = null;
 
   constructor(config: OrchestratorConfig) {
@@ -31,9 +33,49 @@ export class Normandy {
     this.toolRegistry = new ToolRegistry();
     this.outputManager = new OutputManager(config.outputDir);
     this.memoryManager = new MemoryManager(config.outputDir);
+    this.mcpManager = new McpManager();
 
     this.setupTools();
     this.setupExecutors();
+  }
+
+  /**
+   * Initialize async resources (MCP servers).
+   * Must be called before execute() or chat().
+   */
+  async init(): Promise<void> {
+    if (this.config.mcpServers) {
+      await this.connectMcpServers();
+    }
+  }
+
+  private async connectMcpServers(): Promise<void> {
+    const servers = this.config.mcpServers;
+    if (!servers) return;
+
+    for (const [name, config] of Object.entries(servers)) {
+      try {
+        await this.mcpManager.connect(name, config);
+
+        // Register MCP tool handlers in our tool registry
+        const handlers = this.mcpManager.getToolHandlers(name);
+        this.toolRegistry.registerAll(handlers);
+
+        logger.info(
+          { server: name, tools: handlers.length },
+          "MCP tools registered",
+        );
+      } catch (error) {
+        logger.error(
+          { server: name, error: String(error) },
+          "Failed to connect MCP server — continuing without it",
+        );
+      }
+    }
+
+    if (this.mcpManager.getServerNames().length > 0) {
+      logger.info(this.mcpManager.getSummary());
+    }
   }
 
   private setupTools(): void {
@@ -69,10 +111,13 @@ export class Normandy {
       .filter((id) => id !== "shepard");
 
     for (const agentId of squadIds) {
-      this.taskManager.registerExecutor(agentId, async (task) => {
+      this.taskManager.registerExecutor(agentId, async (task, maxTurnsOverride) => {
+        const mcpTools = this.mcpManager.getToolNamesForAgent(agentId);
         const agent = this.agentRegistry.createAgent(
           agentId,
           this.toolRegistry,
+          maxTurnsOverride,
+          mcpTools,
         );
         agent.setMemoryManager(this.memoryManager);
         return agent.run(task);
@@ -106,7 +151,8 @@ export class Normandy {
 
     // If a specific squad member is requested, run them directly
     const agentId = options.specialist || "shepard";
-    const agent = this.agentRegistry.createAgent(agentId, this.toolRegistry);
+    const mcpTools = this.mcpManager.getToolNamesForAgent(agentId);
+    const agent = this.agentRegistry.createAgent(agentId, this.toolRegistry, undefined, mcpTools);
     agent.setMemoryManager(this.memoryManager);
     const result = await agent.run(task);
 
@@ -133,9 +179,12 @@ export class Normandy {
 
   private getShepard(): BaseAgent {
     if (!this.shepard) {
+      const mcpTools = this.mcpManager.getToolNamesForAgent("shepard");
       this.shepard = this.agentRegistry.createAgent(
         "shepard",
         this.toolRegistry,
+        undefined,
+        mcpTools,
       );
       this.shepard.setMemoryManager(this.memoryManager);
     }
@@ -161,6 +210,14 @@ export class Normandy {
     }
 
     return { output: result.output, files: allFiles };
+  }
+
+  getMcpSummary(): string {
+    return this.mcpManager.getSummary();
+  }
+
+  async shutdown(): Promise<void> {
+    await this.mcpManager.disconnect();
   }
 
   private collectAllFiles(): GeneratedFile[] {

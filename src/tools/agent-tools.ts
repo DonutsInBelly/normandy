@@ -46,6 +46,11 @@ The squad member will execute the mission and return a report with generated fil
             description:
               "Additional intel, requirements, or constraints for the mission",
           },
+          maxTurns: {
+            type: "number",
+            description:
+              "Override the maximum number of agentic loop turns for this mission (default is the agent's configured maxTurns)",
+          },
         },
         required: ["specialistId", "description"],
       },
@@ -54,11 +59,14 @@ The squad member will execute the mission and return a report with generated fil
       const specialistId = input.specialistId as string;
       const description = input.description as string;
       const context = (input.context as string) || "";
+      const maxTurns = input.maxTurns as number | undefined;
 
       const taskId = await taskManager.createAndExecuteTask(
         specialistId,
         description,
         context,
+        undefined,
+        maxTurns,
       );
 
       const result = taskManager.getTaskResult(taskId);

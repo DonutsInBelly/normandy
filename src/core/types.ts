@@ -8,6 +8,8 @@ export interface AgentConfig {
   systemPrompt: string;
   tools: string[];
   maxTurns: number;
+  maxTokens?: number;
+  timeoutMs?: number;
   thinking?: { type: "enabled"; budgetTokens: number } | { type: "disabled" };
   webSearch?: boolean;
 }
@@ -53,11 +55,25 @@ export interface ToolHandler {
   execute: (input: Record<string, unknown>) => Promise<string>;
 }
 
+export interface McpServerEntry {
+  /** The command to spawn the MCP server process */
+  command: string;
+  /** Arguments passed to the command */
+  args?: string[];
+  /** Environment variables for the server process */
+  env?: Record<string, string>;
+  /** Working directory for the server process */
+  cwd?: string;
+  /** Which agent IDs should receive these tools (empty = all agents) */
+  agentIds?: string[];
+}
+
 export interface OrchestratorConfig {
   outputDir: string;
   verbose: boolean;
   defaultModel: string;
   maxRetries: number;
+  mcpServers?: Record<string, McpServerEntry>;
 }
 
 export const DEFAULT_CONFIG: OrchestratorConfig = {

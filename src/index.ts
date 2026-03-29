@@ -46,6 +46,7 @@ program
       }
 
       const normandy = new Normandy(config);
+      await normandy.init();
 
       if (request) {
         await runOneShot(normandy, request, config.outputDir, options.squad);

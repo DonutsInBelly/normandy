@@ -16,7 +16,12 @@ export class AgentRegistry {
     this.factories.set(config.id, factory);
   }
 
-  createAgent(agentId: string, toolRegistry: ToolRegistry): BaseAgent {
+  createAgent(
+    agentId: string,
+    toolRegistry: ToolRegistry,
+    maxTurnsOverride?: number,
+    extraTools?: string[],
+  ): BaseAgent {
     const factory = this.factories.get(agentId);
     const config = this.configs.get(agentId);
 
@@ -26,7 +31,19 @@ export class AgentRegistry {
       );
     }
 
-    return factory(config, toolRegistry);
+    let effectiveConfig = config;
+
+    if (maxTurnsOverride || (extraTools && extraTools.length > 0)) {
+      effectiveConfig = {
+        ...config,
+        ...(maxTurnsOverride ? { maxTurns: maxTurnsOverride } : {}),
+        ...(extraTools && extraTools.length > 0
+          ? { tools: [...config.tools, ...extraTools] }
+          : {}),
+      };
+    }
+
+    return factory(effectiveConfig, toolRegistry);
   }
 
   getConfig(agentId: string): AgentConfig | undefined {
