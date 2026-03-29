@@ -1,6 +1,7 @@
 import { OrchestratorConfig, Task, GeneratedFile } from "./core/types.js";
 import { TaskManager } from "./core/task-manager.js";
 import { BaseAgent } from "./core/agent.js";
+import { MemoryManager } from "./core/memory.js";
 import { ToolRegistry } from "./tools/registry.js";
 import { createDefaultRegistry } from "./agents/index.js";
 import { createFileTools } from "./tools/file-tools.js";
@@ -8,6 +9,7 @@ import { createCommandTools } from "./tools/command-tools.js";
 import { createCodeTools } from "./tools/code-tools.js";
 import { createAgentTools } from "./tools/agent-tools.js";
 import { createGitTools } from "./tools/git-tools.js";
+import { createMemoryTools } from "./tools/memory-tools.js";
 import { OutputManager } from "./utils/output.js";
 import { logger } from "./utils/logger.js";
 import { formatTokenUsage } from "./utils/stream.js";
@@ -19,6 +21,7 @@ export class Normandy {
   private agentRegistry: ReturnType<typeof createDefaultRegistry>;
   private toolRegistry: ToolRegistry;
   private outputManager: OutputManager;
+  private memoryManager: MemoryManager;
   private shepard: BaseAgent | null = null;
 
   constructor(config: OrchestratorConfig) {
@@ -27,6 +30,7 @@ export class Normandy {
     this.agentRegistry = createDefaultRegistry();
     this.toolRegistry = new ToolRegistry();
     this.outputManager = new OutputManager(config.outputDir);
+    this.memoryManager = new MemoryManager(config.outputDir);
 
     this.setupTools();
     this.setupExecutors();
@@ -54,6 +58,8 @@ export class Normandy {
       createGitTools(this.outputManager.getBaseDir()),
     );
 
+    // Register memory tools (mission logs)
+    this.toolRegistry.registerAll(createMemoryTools(this.memoryManager));
   }
 
   private setupExecutors(): void {
@@ -68,6 +74,7 @@ export class Normandy {
           agentId,
           this.toolRegistry,
         );
+        agent.setMemoryManager(this.memoryManager);
         return agent.run(task);
       });
     }
@@ -100,6 +107,7 @@ export class Normandy {
     // If a specific squad member is requested, run them directly
     const agentId = options.specialist || "shepard";
     const agent = this.agentRegistry.createAgent(agentId, this.toolRegistry);
+    agent.setMemoryManager(this.memoryManager);
     const result = await agent.run(task);
 
     const allFiles = this.collectAllFiles();
@@ -129,6 +137,7 @@ export class Normandy {
         "shepard",
         this.toolRegistry,
       );
+      this.shepard.setMemoryManager(this.memoryManager);
     }
     return this.shepard;
   }

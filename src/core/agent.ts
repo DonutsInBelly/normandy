@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { AgentConfig, Task, TaskResult, GeneratedFile } from "./types.js";
 import { ConversationManager } from "./conversation.js";
+import { MemoryManager } from "./memory.js";
 import { ToolRegistry } from "../tools/registry.js";
 import { getClient } from "./client.js";
 import { withRetry, MaxTurnsExceededError } from "./errors.js";
@@ -14,6 +15,7 @@ export abstract class BaseAgent {
   protected toolRegistry: ToolRegistry;
   protected logger: ReturnType<typeof createAgentLogger>;
   protected generatedFiles: GeneratedFile[] = [];
+  protected memoryManager: MemoryManager | null = null;
 
   constructor(config: AgentConfig, toolRegistry: ToolRegistry) {
     this.config = config;
@@ -21,6 +23,10 @@ export abstract class BaseAgent {
     this.conversation = new ConversationManager();
     this.toolRegistry = toolRegistry;
     this.logger = createAgentLogger(config.id);
+  }
+
+  setMemoryManager(memory: MemoryManager): void {
+    this.memoryManager = memory;
   }
 
   async run(task: Task): Promise<TaskResult> {
@@ -71,6 +77,20 @@ export abstract class BaseAgent {
     }
   }
 
+  protected async buildSystemPrompt(): Promise<string> {
+    let prompt = this.config.systemPrompt;
+
+    if (this.memoryManager) {
+      const memoryContext = await this.memoryManager.buildContext(this.config.id);
+      if (memoryContext) {
+        prompt += "\n\n" + memoryContext;
+        this.logger.info("Previous mission log loaded");
+      }
+    }
+
+    return prompt;
+  }
+
   protected async executeLoop(): Promise<Anthropic.Message> {
     const clientTools: Anthropic.Messages.ToolUnion[] =
       this.toolRegistry.getDefinitions(this.config.tools);
@@ -84,6 +104,7 @@ export abstract class BaseAgent {
       });
     }
 
+    const systemPrompt = await this.buildSystemPrompt();
     let turns = 0;
 
     while (true) {
@@ -102,7 +123,7 @@ export abstract class BaseAgent {
         const stream = this.client.messages.stream({
           model: this.config.model,
           max_tokens: 16384,
-          system: this.config.systemPrompt,
+          system: systemPrompt,
           messages: this.conversation.getMessages(),
           tools: clientTools.length > 0 ? clientTools : undefined,
         });
@@ -146,9 +167,16 @@ export abstract class BaseAgent {
         );
 
         try {
+          const toolInput = toolUse.input as Record<string, unknown>;
+
+          // Inject agent ID for memory tools
+          if (toolUse.name === "save_memory") {
+            toolInput._agentId = this.config.id;
+          }
+
           const result = await this.toolRegistry.execute(
             toolUse.name,
-            toolUse.input as Record<string, unknown>,
+            toolInput,
           );
 
           // Track file writes

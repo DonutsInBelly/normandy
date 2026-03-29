@@ -25,6 +25,8 @@ An AI-powered code generation CLI built in TypeScript using the Claude API (`@an
 - `src/core/task-manager.ts` — Mission lifecycle, connects Shepard's delegation to specialist execution
 - `src/tools/` — Tool system (file ops, shell commands, code search, agent delegation, git/GitHub)
 - `src/tools/git-tools.ts` — Git and GitHub tools (git_init, git_commit, create_github_repo, create_pull_request, create_issue, list_issues)
+- `src/tools/memory-tools.ts` — Agent memory tools (save_memory, read_memory)
+- `src/core/memory.ts` — MemoryManager: reads/writes .normandy/{agentId}.md files per project
 - `src/orchestrator.ts` — `Normandy` class: wires agents, tools, and task manager together
 - `src/index.ts` — CLI entry point with interactive CIC (REPL) and one-shot modes
 
@@ -55,3 +57,4 @@ npm link             # install `normandy` command globally
 - Git/GitHub tools: Shepard gets repo creation, all builders get git_init/git_commit, Miranda gets create_issue/create_pull_request
 - GitHub CLI (`gh`) must be authenticated for GitHub tools to work
 - Web search: agents with `webSearch: true` in config get Claude's built-in server-side web search (no extra API key needed)
+- Agent memory: agents save/load mission logs to `.normandy/{agentId}.md` in the project dir. Loaded into system prompt on task start, saved via save_memory tool. Agents can also read each other's logs via read_memory.

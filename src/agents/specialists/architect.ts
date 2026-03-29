@@ -48,6 +48,8 @@ Output architecture as concrete files: project structure, specification document
     "search_code",
     "git_init",
     "git_commit",
+    "save_memory",
+    "read_memory",
   ],
   maxTurns: 30,
   webSearch: true,

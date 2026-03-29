@@ -51,6 +51,8 @@ Always write complete, playable game code. Can it wait? I'm in the middle of som
     "run_command",
     "git_init",
     "git_commit",
+    "save_memory",
+    "read_memory",
   ],
   maxTurns: 50,
   webSearch: true,

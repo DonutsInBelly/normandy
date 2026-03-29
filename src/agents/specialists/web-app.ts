@@ -49,6 +49,8 @@ Always write complete, working code -- Keelah, never leave placeholder comments 
     "run_command",
     "git_init",
     "git_commit",
+    "save_memory",
+    "read_memory",
   ],
   maxTurns: 50,
   webSearch: true,

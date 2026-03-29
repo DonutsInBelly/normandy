@@ -52,6 +52,8 @@ Always write complete, functional code ready to run on a device or simulator. By
     "run_command",
     "git_init",
     "git_commit",
+    "save_memory",
+    "read_memory",
   ],
   maxTurns: 50,
   webSearch: true,

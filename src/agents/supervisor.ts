@@ -56,7 +56,7 @@ After all assignments complete, provide:
 2. List of all generated files
 3. Setup/deployment instructions
 4. Any tactical recommendations`,
-  tools: ["delegate_task", "get_task_status", "create_github_repo", "git_init", "git_commit"],
+  tools: ["delegate_task", "get_task_status", "create_github_repo", "git_init", "git_commit", "save_memory", "read_memory"],
   maxTurns: 20,
 };
 
